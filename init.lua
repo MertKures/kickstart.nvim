@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -944,7 +944,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'python', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -962,6 +962,13 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+  {
+    'tadmccorkle/markdown.nvim',
+    ft = 'markdown', -- or 'event = "VeryLazy"'
+    opts = {
+      -- configuration here or empty for defaults
+    },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -1011,6 +1018,27 @@ require('lazy').setup({
     },
   },
 })
+
+-- Automatically install vim-plug if not already installed
+local plug_path = vim.fn.stdpath 'data' .. '/site/autoload/plug.vim'
+if vim.fn.empty(vim.fn.glob(plug_path)) > 0 then
+  vim.fn.system { 'curl', '-fLo', plug_path, '--create-dirs', 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim' }
+  print 'vim-plug installed. Restart Neovim.'
+  return
+end
+
+-- Add SimpylFold plugin
+vim.cmd [[
+call plug#begin('~/.config/nvim/plugged')
+Plug 'https://github.com/tmhedberg/SimpylFold.git'
+call plug#end()
+]]
+
+-- Additional configuration for SimpylFold
+vim.g.foldmethod = 'indent' -- Set the fold method to indent
+vim.g.foldlevelstart = 99 -- Start with all folds open
+
+vim.g.simpylfold_auto = 1
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
