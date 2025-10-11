@@ -717,6 +717,8 @@ require('lazy').setup({
       vim.list_extend(ensure_installed, {
         'stylua',
         'pyright', -- Used to format Lua code
+        'arduino_language_server',
+        'clangd',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -1040,6 +1042,10 @@ vim.g.foldmethod = 'indent' -- Set the fold method to indent
 vim.g.foldlevelstart = 99 -- Start with all folds open
 
 vim.g.simpylfold_auto = 1
+
+vim.o.shiftwidth = 4
+vim.o.tabstop = 4
+vim.o.expandtab = true
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
