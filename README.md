@@ -22,6 +22,39 @@ nvm install --lts
 npm install -g pyright
 ```
 
+### Install black
+
+```sh
+pip install black
+```
+
+If you get a permission error, run below:
+
+```sh
+sudo chown $USER:$USER -R /usr/local/bin
+```
+
+### Install clangd and clang-format
+
+#### Ubuntu 22.04
+
+```sh
+sudo apt-get install clangd-12
+sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-12 100
+```
+
+```sh
+sudo apt install clang-format-12
+sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-12 100
+```
+
+If using arm64 (aka aarch64) architecture, run below to make nvim see clangd.
+
+```sh
+ln -s /usr/bin/clangd-12 ~/.local/share/nvim/mason/bin/clangd
+mkdir ~/.local/share/nvim/mason/packages/clangd
+```
+
 ### Post Installation
 
 Start Neovim
