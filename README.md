@@ -55,6 +55,33 @@ ln -s /usr/bin/clangd-12 ~/.local/share/nvim/mason/bin/clangd
 mkdir ~/.local/share/nvim/mason/packages/clangd
 ```
 
+### Install arduino-language-server
+
+#### Install go
+
+##### AMD64
+
+```sh
+wget https://go.dev/dl/go1.25.3.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.25.3.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.bashrc
+```
+
+##### ARM64
+
+```sh
+wget https://go.dev/dl/go1.25.3.linux-arm64.tar.gz
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.25.3.linux-arm64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.bashrc
+```
+
+#### Install language server
+
+```sh
+go install github.com/arduino/arduino-language-server@latest
+echo "export PATH=$PATH:$HOME/go/bin/arduino-language-server" >> $HOME/.bashrc
+```
+
 ### Post Installation
 
 Start Neovim
