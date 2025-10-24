@@ -79,7 +79,7 @@ echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.bashrc
 
 ```sh
 go install github.com/arduino/arduino-language-server@latest
-echo "export PATH=$PATH:$HOME/go/bin/arduino-language-server" >> $HOME/.bashrc
+echo 'export PATH=$PATH:$HOME/go/bin' >> $HOME/.bashrc
 ```
 
 ### Post Installation
