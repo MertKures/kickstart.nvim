@@ -1049,5 +1049,13 @@ vim.o.shiftwidth = 4
 vim.o.tabstop = 4
 vim.o.expandtab = true
 
+toggle_wrap = function()
+  local current_wrap = vim.wo.wrap
+  vim.wo.wrap = not current_wrap
+end
+
+vim.api.nvim_set_keymap('n', '<A-z>', ':lua toggle_wrap()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<A-z>', '<C-o>:lua toggle_wrap()<CR>', { noremap = true, silent = true })
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
