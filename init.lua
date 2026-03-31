@@ -479,6 +479,18 @@ require('lazy').setup({
     end,
   },
 
+  -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
+  -- used for completion, annotations and signatures of Neovim apis
+  {
+    'folke/lazydev.nvim',
+    ft = 'lua',
+    opts = {
+      library = {
+        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+      },
+    },
+  },
+
   -- LSP Plugins
   {
     -- Main LSP Configuration
@@ -602,7 +614,8 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {}, -- Python: autocompletion, type checking, go-to-definition
+        clangd = {}, -- C/C++: autocompletion, go-to-definition
         -- rust_analyzer = {},
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -652,7 +665,10 @@ require('lazy').setup({
       -- You can press `g?` for help in this menu.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        -- You can add other tools here that you want Mason to install
+        'stylua',
+        'ruff',
+        'arduino_language_server',
+        'clangd',
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -666,13 +682,12 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
-    event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
       {
         '<leader>f',
         function() require('conform').format { async = true, lsp_format = 'fallback' } end,
-        mode = '',
+        mode = { 'n', 'v', '' },
         desc = '[F]ormat buffer',
       },
     },
@@ -680,25 +695,10 @@ require('lazy').setup({
     ---@type conform.setupOpts
     opts = {
       notify_on_error = false,
-      format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          return nil
-        else
-          return {
-            timeout_ms = 500,
-            lsp_format = 'fallback',
-          }
-        end
-      end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
+        python = { 'ruff_format' },
+        cpp = { 'clang_format' },
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
@@ -779,7 +779,10 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets' },
+        default = { 'lsp', 'path', 'snippets', 'lazydev' },
+        providers = {
+          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+        },
       },
 
       snippets = { preset = 'luasnip' },
@@ -868,56 +871,29 @@ require('lazy').setup({
   },
 
   { -- Highlight, edit, and navigate code
+    -- Using master branch which downloads pre-compiled parsers (no tree-sitter-cli needed)
     'nvim-treesitter/nvim-treesitter',
-    lazy = false,
+    branch = 'master',
     build = ':TSUpdate',
-    branch = 'main',
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter-intro`
+    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     config = function()
-      -- ensure basic parser are installed
-      local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
-      require('nvim-treesitter').install(parsers)
-
-      ---@param buf integer
-      ---@param language string
-      local function treesitter_try_attach(buf, language)
-        -- check if parser exists and load it
-        if not vim.treesitter.language.add(language) then return end
-        -- enables syntax highlighting and other treesitter features
-        vim.treesitter.start(buf, language)
-
-        -- enables treesitter based folds
-        -- for more info on folds see `:help folds`
-        -- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-        -- vim.wo.foldmethod = 'expr'
-
-        -- enables treesitter based indentation
-        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-      end
-
-      local available_parsers = require('nvim-treesitter').get_available()
-      vim.api.nvim_create_autocmd('FileType', {
-        callback = function(args)
-          local buf, filetype = args.buf, args.match
-
-          local language = vim.treesitter.language.get_lang(filetype)
-          if not language then return end
-
-          local installed_parsers = require('nvim-treesitter').get_installed 'parsers'
-
-          if vim.tbl_contains(installed_parsers, language) then
-            -- enable the parser if it is installed
-            treesitter_try_attach(buf, language)
-          elseif vim.tbl_contains(available_parsers, language) then
-            -- if a parser is available in `nvim-treesitter` auto install it, and enable it after the installation is done
-            require('nvim-treesitter').install(language):await(function() treesitter_try_attach(buf, language) end)
-          else
-            -- try to enable treesitter features in case the parser exists but is not available from `nvim-treesitter`
-            treesitter_try_attach(buf, language)
-          end
-        end,
-      })
+      ---@diagnostic disable-next-line: missing-fields
+      require('nvim-treesitter.configs').setup {
+        ensure_installed = {
+          'bash', 'c', 'cpp', 'diff', 'html', 'lua', 'luadoc',
+          'markdown', 'markdown_inline', 'python', 'query', 'vim', 'vimdoc',
+        },
+        auto_install = true,
+        highlight = { enable = true },
+        indent = { enable = true },
+      }
     end,
+  },
+
+  {
+    'tadmccorkle/markdown.nvim',
+    ft = 'markdown',
+    opts = {},
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -967,6 +943,25 @@ require('lazy').setup({
     },
   },
 })
+
+-- Indent settings
+vim.o.shiftwidth = 4
+vim.o.tabstop = 4
+vim.o.expandtab = true
+
+-- Fold settings (indent-based, all folds open by default)
+vim.o.foldmethod = 'indent'
+vim.o.foldlevel = 99
+vim.o.foldlevelstart = 99
+
+-- Toggle line wrap with Alt+Z
+toggle_wrap = function()
+  vim.wo.wrap = not vim.wo.wrap
+end
+vim.keymap.set({ 'n', 'i' }, '<A-z>', toggle_wrap, { noremap = true, silent = true, desc = 'Toggle line wrap' })
+
+-- Open diagnostic float with <Leader>e
+vim.keymap.set('n', '<Leader>e', vim.diagnostic.open_float, { noremap = true, silent = true, desc = 'Open diagnostic float' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
