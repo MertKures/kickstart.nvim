@@ -73,6 +73,20 @@ ln -s /usr/bin/clangd-12 ~/.local/share/nvim/mason/bin/clangd
 mkdir ~/.local/share/nvim/mason/packages/clangd
 ```
 
+### Install nvm and npm
+
+```sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+source $HOME/.bashrc
+nvm install --lts
+```
+
+### Install pyright
+
+```sh
+npm install -g pyright
+```
+
 ### Install arduino-language-server
 
 #### Install go
