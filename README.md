@@ -174,6 +174,7 @@ sudo apt install make gcc ripgrep unzip git xclip neovim
 
 <details><summary>Debian Install Steps</summary>
 
+X86
 ```
 sudo apt update
 sudo apt install make gcc ripgrep unzip git xclip curl
@@ -187,6 +188,22 @@ sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
 
 # make it available in /usr/local/bin, distro installs to /usr/bin
 sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/
+```
+
+ARM64
+```
+sudo apt update
+sudo apt install make gcc ripgrep unzip git xclip curl
+
+# Now we install nvim
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz
+sudo rm -rf /opt/nvim-linux-arm64
+sudo mkdir -p /opt/nvim-linux-arm64
+sudo chmod a+rX /opt/nvim-linux-arm64
+sudo tar -C /opt -xzf nvim-linux-arm64.tar.gz
+
+# make it available in /usr/local/bin, distro installs to /usr/bin
+sudo ln -sf /opt/nvim-linux-arm64/bin/nvim /usr/local/bin/
 ```
 </details>
 
